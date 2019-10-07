@@ -2,6 +2,7 @@ import React from "react"
 import { Link } from "gatsby"
 
 import { rhythm, scale } from "../utils/typography"
+import Righteous from 'typeface-righteous'
 
 class Layout extends React.Component {
   render() {
@@ -13,8 +14,9 @@ class Layout extends React.Component {
       header = (
         <h1
           style={{
-            ...scale(1.5),
-            marginBottom: rhythm(1.5),
+            fontFamily: `${Righteous}, cursive`,
+            // ...scale(1.5),
+            // marginBottom: rhythm(1.5),
             marginTop: 0,
           }}
         >

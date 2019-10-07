@@ -8,8 +8,13 @@
 import React from "react"
 import { useStaticQuery, graphql } from "gatsby"
 import Image from "gatsby-image"
-
+import styled from 'styled-components'
 import { rhythm } from "../utils/typography"
+
+const Wrapper = styled.section`
+  display: flex;
+  margin-bottom: 1 rem;
+`;
 
 const Bio = () => {
   const data = useStaticQuery(graphql`
@@ -34,12 +39,7 @@ const Bio = () => {
 
   const { author, social } = data.site.siteMetadata
   return (
-    <div
-      style={{
-        display: `flex`,
-        marginBottom: rhythm(2.5),
-      }}
-    >
+    <Wrapper>
       <Image
         fixed={data.avatar.childImageSharp.fixed}
         alt={author}
@@ -61,7 +61,7 @@ const Bio = () => {
           He would be honored if you would follow him on Instagram
         </a>
       </p>
-    </div>
+    </Wrapper>
   )
 }
 
