@@ -38,4 +38,4 @@ After restarting the IDE, you should now have an option on the _Tools_ menu call
 
 ### Conclusion
 
-That's it! You're Arduino IDE is all set up for ESP32 boards. Now...what will you do with it?
+That's it! Your Arduino IDE is all set up for ESP32 boards. Now...what will you do with it?
