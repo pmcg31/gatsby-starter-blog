@@ -18,6 +18,7 @@ class Layout extends React.Component {
             // ...scale(1.5),
             // marginBottom: rhythm(1.5),
             marginTop: 0,
+            color: '#007acc'
           }}
         >
           <Link
@@ -44,7 +45,7 @@ class Layout extends React.Component {
             style={{
               boxShadow: `none`,
               textDecoration: `none`,
-              color: `inherit`,
+              color: '#007acc',
             }}
             to={`/`}
           >
@@ -62,7 +63,7 @@ class Layout extends React.Component {
           padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
         }}
       >
-        <header>{header}</header>
+        <header>{header}<hr></hr></header>
         <main>{children}</main>
         <footer>
           © {new Date().getFullYear()}, Built with
