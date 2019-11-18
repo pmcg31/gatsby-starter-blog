@@ -1,5 +1,5 @@
 ---
-title: ESP32 Set Up on Arduino
+title: ESP32 Set Up on Arduino IDE
 date: "2019-11-17"
 description: "Actions required to install board definitions and SPIFFS uploader for ESP32 to Arduino IDE"
 ---
