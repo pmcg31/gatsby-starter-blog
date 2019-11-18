@@ -16,7 +16,7 @@ Two steps are needed to get the board definitions loaded.
 
 First, we need to tell the Arduino IDE about a new place to find definitions from. That place is:
 
-<quote><code>http://arduino.esp8266.com/stable/package_esp8266com_index.json</code></quote>
+<blockquote><code>http://arduino.esp8266.com/stable/package_esp8266com_index.json</code></blockquote>
 
 Open preferences for the Arduino IDE, go to the _Settings_ tab, and add that URL to _Additional Boards Manager URLs_.
 
@@ -28,7 +28,7 @@ When you return to the _Tools_-->_Board_ menu, an ESP8266 section is now availab
 
 To enable uploading data to the SPIFFS on your board, go to:
 
-<quote><code>https://github.com/esp8266/arduino-esp8266fs-plugin/releases</code></quote>
+<blockquote><code><a href="https://github.com/esp8266/arduino-esp8266fs-plugin/releases">https://github.com/esp8266/arduino-esp8266fs-plugin/releases</a></code></blockquote>
 
 Download the latest "ESP8266FS-_ver_.zip" file. At the time of this writing, this was "ESP8266FS-0.4.0.zip."
 
