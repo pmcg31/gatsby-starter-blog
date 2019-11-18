@@ -1,7 +1,7 @@
 ---
 title: ESP8266 Set Up on Arduino IDE
 date: "2019-11-17"
-description: "Actions required to install board definitions and SPIFFS uploader for ESP8266 to Arduino IDE"
+description: "Guide to installing board definitions and SPIFFS uploader for ESP8266 to Arduino IDE"
 ---
 
 ESP8266 based development boards offer a very nice microcontroller along with WiFi connectivity. Even better, these boards can be programmed directly from the Arduino IDE, making prototyping super easy, quick, and fun!
