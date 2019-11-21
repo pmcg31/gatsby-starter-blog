@@ -16,6 +16,8 @@ Almost forgot! There is a JSON config file also stored in SPIFFS. This is read t
 
 To follow everything in this guide you will need an ESP32 development board and a potentiometer. I used a NodeMCU-32s and 100K pot, but any board and pot should be fine (it's on you to use ohm's law to make sure your pot doesn't draw too much current!). You will also need an internet connection to download libraries, and a WiFi network to connect to.
 
+Your Arduino IDE must also be set up for ESP32 board development and SPIFFS file upload. If it isn't, check out [my other blog post on how to set that up](../esp32-set-up-on-arduino/).
+
 ### Lib Free or Die
 
 We need three (free!) libraries that are not part of the default Arduino IDE environment. One can be grabbed using the library manager tool in the IDE; we'll need to brave the interwebs for the others.
@@ -68,7 +70,7 @@ Yep, life is pretty good. Except for that whole waiting to see what the IP addre
 
 ### Hang Your Shingle
 
-Wouldn't it be great if we could skip all that IP ugliness and just refer to our little board by name? It would be great, and it's called mDNS. The DNS stands for DNS, and the m stands for multicast. DNS is domain name system, of course.
+Wouldn't it be great if we could skip all that IP ugliness and just refer to our little board by name? Not only would it be great, but it has a name...mDNS. The DNS stands for DNS, and the m stands for multicast. DNS is domain name system, of course.
 
 Generally speaking, getting your server into a DNS requires an afternoon of configuration editing and google searches (and profanity). But that's like moving to a new neighborhood and waiting months for a new telephone book to be published. mDNS is more like showing up to a party with a sticker on your shirt that says "Hello, my name is..."
 
@@ -108,4 +110,58 @@ Once you have the file edited and in the "data" directory, make sure the window 
 
 Now that your config file is edited and uploaded, upload the sketch. Refresh your browser confident in the knowledge that you will not have to enter your network ssid and key again!
 
+### Didn't You Say Something About Web Sockets?
 
+I did, which brings us to the final segment of this guide.
+
+The first change here is that we'll be serving the web page from a file in SPIFFS now. Download this file, rename it to <code>index.html</code> and put it in your sketch "data" directory with <code>config.json</code>:
+
+<blockquote><a href="index.html.txt">Web page</a></blockquote>
+
+Make sure the window with your sketch is active and then do _ESP32 Sketch Data Upload_ again.
+
+That brings us to the final version of the code:
+
+<blockquote><a href="code_final.ino">Final code version</a></blockquote>
+
+The first change you'll notice is that we've added an AsyncWebSocket. The "/ws" is the URL where the web socket can be found. Since it is a relative path, that means relative to the web server, so the full URL would be "ws://esp32.local/ws"
+
+The next change is subtle...<code>handleRoot</code> now serves <code>index.html</code> from SPIFFS (you didn't forget to rename that file, did you?).
+
+Next up is a new function that handles web socket events. You can see that on connect we create and populate a JSON object with current values and ship the serialized (text) version over to the client. Since our page is set up to connect to the web socket on load (more on that later), this means it will immediately get the current data and update itself.
+
+If a client disconnects, we log it, and shed a tear (not in the code).
+
+Finally, if we get data in it gets parsed by the JSON parser. We only accept a single key, "potAvg," which updates the number of measurements to average. After updating the local variable, it also sends the new average out to all connected clients. They will update their user interfaces accordingly to show the new average also.
+
+In <code>setup</code>, the web socket event handler is bound to the web socket object. The web socket object is then bound to the web server. And just like that, we're in the web socket business, son!
+
+The final change is in <code>loop</code>. Each time the pot value changes, it is bundled up as JSON and shipped to all connected clients.
+
+### The Web Page
+
+The other half of this equation is the JavaScript running on our web page.
+
+The init function is bound to the load event of the page. When the page loads, init connects to the web socket. It does a big dance to determine the host name or IP address the page was served from and construct the proper web socket URL from there. If it fails, it updates the text on the page where the data is supposed to go with a bright red "!! NO HOST !!" message. You can't miss it!
+
+Next is the function that does all the steps of connecting to the web socket and binding event handlers. It is called from init.
+
+The next bunch are said event handlers. The interesting one is <code>onMessage</code>, which receives and parses messages from the server. Three fields are recognized. One is "potVal", which is the current (averaged) pot value. This updates the text on the page to show the current value. Next is "potAvg," which you will recall from the server code. This is the message going the other way, from server to client after the server updates its value. The range slider gets updated to reflect this new value. Finally is "potAvgMax," which sets the top value for the slider. This allows the sketch to be edited to allow more values to be averaged without having to keep the web page in sync.
+
+After the web socket handlers comes <code>doSend</code>, a convenience method for sending data to the web socket.
+
+Next is <code>onPotAvgChange</code>. This handler is called when the slider is moved. It then sends a web socket message with the new value to the server.
+
+Finally, the <code>init</code> function is bound to page load.
+
+The only thing of interest in the html is that I've used "id=" on the tags I want to be able to find and modify later. Throughout the JavaScript you will see <code>document.getElementById</code> used to grab the tag I want.
+
+### Conclusion
+
+Whew! This was a long one, but there was a lot to cover. All that to display a changing value in a web page!
+
+The web socket can be accessed independently of the web server. This means that another browser or program could simply listen for the pot values. I like this concept a lot for these little IOT boards.
+
+It means that a user can browse straight to an IOT device and interact with it. But it also means that a centralized web server can listen to all the IOT devices and present the data in a unified way. That's great because as cool as it is that we can connect to the devices individually, that gets old super fast when you want to dim the living room lights and turn off the kitchen lights. Without a central server, you will need to browse to two devices to accomplish this. It's hard to believe that people once would _walk_ to each location!
+
+We live in amazing times where these cheap little boards exist. Their possible uses are limitless. What will you do with them?

@@ -1,0 +1,123 @@
+<html>
+
+<head>
+<title>ESP32s</title>
+
+<script language="javascript" type="text/javascript">
+    function init() {
+        ourURL = window.location.href;
+        console.log("ourURL = "+ ourURL);
+        chop = 0;
+        if (ourURL.startsWith("http://")) {
+            chop = 7;
+        } else if (ourURL.startsWith("https://")) {
+            chop = 8;
+        } else {
+            console.log("window.location.href is not an http URL");
+            document.getElementById('potVal').innerHTML = "<font color=\"red\">!! NO HOST !!</font>";
+        }
+
+        if (chop != 0) {
+            tmp = ourURL.slice(chop);
+            if ((idx = tmp.indexOf("/")) != -1) {
+                ourHost = tmp.slice(0, idx);
+                console.log("ourHost = "+ ourHost);
+
+                url = "ws://"+ ourHost +"/ws";
+                console.log("url = "+ url);
+
+                // Connect to WebSocket server
+                wsConnect(url);
+            } else {
+                console.log("Could not determine hostname from window.location.href");
+                document.getElementById('potVal').innerHTML = "<font color=\"red\">!! NO HOST !!</font>";
+            }
+        }
+    }
+
+    // Call this to connect to the WebSocket server
+    function wsConnect(url) {
+        
+        // Connect to WebSocket server
+        websocket = new WebSocket(url);
+        
+        // Assign callbacks
+        websocket.onopen = function(evt) { onOpen(evt) };
+        websocket.onclose = function(evt) { onClose(evt) };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror = function(evt) { onError(evt) };
+    }
+    
+    // Called when a WebSocket connection is established with the server
+    function onOpen(evt) {
+    
+        // Log connection state
+        console.log("Connected");
+        
+        // // Get the current state of ??
+        // doSend("get??State");
+    }
+    
+    // Called when the WebSocket connection is closed
+    function onClose(evt) {
+    
+        // Log disconnection state
+        console.log("Disconnected");
+        
+        // Try to reconnect after a few seconds
+        setTimeout(function() { wsConnect(url) }, 2000);
+    }
+    
+    // Called when a message is received from the server
+    function onMessage(evt) {
+    
+        // Print out our received message
+        console.log("Received: " + evt.data);
+        obj = JSON.parse(evt.data);
+        if ('potVal' in obj) {
+            document.getElementById('potVal').innerHTML = ""+ obj.potVal;
+        }
+
+        if ('potAvg' in obj) {
+            document.getElementById('potAvgSlide').value = obj.potAvg;
+            document.getElementById('potAvgText').innerHTML = "" + obj.potAvg;
+        }
+        
+        if ('potAvgMax' in obj) {
+            document.getElementById('potAvgSlide').max = obj.potAvgMax;
+        }
+    }
+    
+    // Called when a WebSocket error occurs
+    function onError(evt) {
+        console.log("ERROR: " + evt.data);
+    }
+    
+    // Sends a message to the server (and prints it to the console)
+    function doSend(message) {
+        console.log("Sending: " + message);
+        websocket.send(message);
+    }
+
+    function onPotAvgChange() {
+        newValue = document.getElementById('potAvgSlide').value;
+        console.log("newPotAvg = "+ newValue);
+        document.getElementById('potAvgText').innerHTML = ""+ newValue;
+        doSend("{ \"potAvg\": "+ newValue +" }");
+    }
+
+    window.addEventListener("load", init, false);
+</script>
+
+</head>
+
+<body>
+<h1>Hello from ESP32!</h1>
+
+<p>The ESP32 has a potentiometer on GPIO 36 with value <span id="potVal">??</span>.</p>
+
+<p>Smooth the value by averaging readings: <input type="range" min="0" max="20" value="5" id="potAvgSlide" onchange="onPotAvgChange()" oninput="onPotAvgChange()"> <span id="potAvgText">5</span></p>
+
+</body>
+
+</html>
